@@ -46,7 +46,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Flutter build web
-        run: flutter build web
+        run: flutter build web --base-href /polygon_background/
 
       - name: Publishing gh-pages
         uses: peaceiris/actions-gh-pages@v3
