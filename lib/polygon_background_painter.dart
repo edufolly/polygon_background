@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 ///
@@ -48,27 +49,38 @@ class PolygonBackgroundPainter extends CustomPainter {
   ///
   @override
   void paint(Canvas canvas, Size size) {
-    print(size);
+    if (kDebugMode) {
+      print(size);
+    }
 
     double x = 0;
 
     List<List<Offset>> matrix = <List<Offset>>[];
 
-    print('First Line');
+    if (kDebugMode) {
+      print('First Line');
+    }
 
     List<Offset> points = <Offset>[];
 
     do {
       points.add(Offset(x, 0));
-      print('x: $x');
+
+      if (kDebugMode) {
+        print('x: $x');
+      }
+
       x += minWidth + rnd.nextInt(maxWidth - minWidth);
     } while (x < size.width - minWidth);
 
     points.add(Offset(size.width, 0));
-    print('x: ${size.width}');
 
-    print('Points Length: ${points.length}');
-    print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
+    if (kDebugMode) {
+      print('x: ${size.width}');
+      print('Points Length: ${points.length}');
+      print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
+    }
+
     matrix.add(points);
 
     int y = minHeight + rnd.nextInt(maxHeight - minHeight);
@@ -86,7 +98,9 @@ class PolygonBackgroundPainter extends CustomPainter {
       ys.add(size.height + minHeight + rnd.nextInt(maxHeight - minHeight));
     }
 
-    for (double y in ys) {
+    for (int i = 0; i < ys.length; i++) {
+      double y = ys[i];
+
       points = <Offset>[];
       List<Offset> lastLine = matrix.last;
 
@@ -95,37 +109,39 @@ class PolygonBackgroundPainter extends CustomPainter {
       }
 
       for (int j = 0; j < lastLine.length - 1; j++) {
-        Offset prev = lastLine[j];
+        int prevX = (lastLine[j].dx + widthMargin).toInt();
 
-        Offset next = lastLine[j + 1];
+        int nextX = (lastLine[j + 1].dx - widthMargin).toInt();
 
-        print('Points [$prev - $next]');
-
-        int prevX = (prev.dx + widthMargin).toInt();
-
-        int nextX = (next.dx - widthMargin).toInt();
-
-        print('AproxX [$prevX - $nextX]');
+        if (kDebugMode) {
+          print('AproxX [$prevX - $nextX]');
+        }
 
         int dx = prevX + rnd.nextInt(nextX - prevX);
 
         x = dx.toDouble();
 
-        print('x: $x');
+        if (kDebugMode) {
+          print('x: $x');
+        }
 
-        if (y > 0) {
-          int prevY = (y - widthMargin).toInt();
+        if (i > 0 && i < ys.length - 1) {
+          int prevY = (ys[i] + widthMargin).toInt();
 
-          int nextY = (y + widthMargin).toInt();
+          int nextY = (ys[i + 1] - widthMargin).toInt();
 
-          print('AproxY [$prevY - $nextY]');
+          if (kDebugMode) {
+            print('AproxY [$prevY - $nextY]');
+          }
 
           int dy = prevY + rnd.nextInt(nextY - prevY);
 
           y = dy.toDouble();
         }
 
-        print('y: $y');
+        if (kDebugMode) {
+          print('y: $y');
+        }
 
         points.add(Offset(x, y));
       }
@@ -134,8 +150,11 @@ class PolygonBackgroundPainter extends CustomPainter {
         points.add(Offset(size.width, y));
       }
 
-      print('Points Length: ${points.length}');
-      print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
+      if (kDebugMode) {
+        print('Points Length: ${points.length}');
+        print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
+      }
+
       matrix.add(points);
 
       x = 0;
