@@ -7,12 +7,12 @@ on:
 jobs:
   build:
     name: Flutter Web Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     permissions:
       contents: write
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Get pubspec version
         run: |
@@ -21,8 +21,6 @@ jobs:
 
       - name: Flutter web environment
         uses: subosito/flutter-action@v2
-        with:
-          channel: 'beta'
 
       - name: Flutter config
         run: flutter config --enable-web --no-analytics
@@ -30,8 +28,8 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-#      - name: Flutter test
-#        run: flutter test
+      - name: Flutter test
+        run: flutter test
 
       - name: Creating a GitHub Tag
         uses: mathieudutour/github-tag-action@v6.0
@@ -46,7 +44,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Flutter build web
-        run: flutter build web --base-href /polygon_background/
+        run: |
+          flutter build web \
+            --base-href /polygon_background/ \
+            --dart-define FLUTTER_WEB_CANVASKIT_URL=/canvaskit/
 
       - name: Publishing gh-pages
         uses: peaceiris/actions-gh-pages@v3
