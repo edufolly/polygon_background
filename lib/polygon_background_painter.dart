@@ -94,24 +94,38 @@ class PolygonBackgroundPainter extends CustomPainter {
         points.add(Offset(0, y));
       }
 
-      for (int i = 0; i < lastLine.length - 1; i++) {
-        double prev = lastLine[i].dx;
+      for (int j = 0; j < lastLine.length - 1; j++) {
+        Offset prev = lastLine[j];
 
-        double next = lastLine[i + 1].dx;
+        Offset next = lastLine[j + 1];
 
         print('Points [$prev - $next]');
 
-        int prevX = (prev + widthMargin).toInt();
+        int prevX = (prev.dx + widthMargin).toInt();
 
-        int nextX = (next - widthMargin).toInt();
+        int nextX = (next.dx - widthMargin).toInt();
 
-        print('Aprox [$prevX - $nextX]');
+        print('AproxX [$prevX - $nextX]');
 
         int dx = prevX + rnd.nextInt(nextX - prevX);
 
         x = dx.toDouble();
 
         print('x: $x');
+
+        if (y > 0) {
+          int prevY = (y - widthMargin).toInt();
+
+          int nextY = (y + widthMargin).toInt();
+
+          print('AproxY [$prevY - $nextY]');
+
+          int dy = prevY + rnd.nextInt(nextY - prevY);
+
+          y = dy.toDouble();
+        }
+
+        print('y: $y');
 
         points.add(Offset(x, y));
       }

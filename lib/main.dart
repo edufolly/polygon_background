@@ -67,9 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Center(
           child: SingleChildScrollView(
             child: Card(
+              color: Colors.black54,
               child: Padding(
                 padding: EdgeInsets.all(32),
-                child: Text('Polygon Background', textScaleFactor: 3,),
+                child: Text(
+                  'Polygon Background',
+                  textScaleFactor: 3,
+                ),
               ),
             ),
           ),
