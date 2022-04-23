@@ -47,7 +47,7 @@ jobs:
         run: |
           flutter build web \
             --base-href /polygon_background/ \
-            --dart-define FLUTTER_WEB_CANVASKIT_URL=/canvaskit/
+            --dart-define FLUTTER_WEB_CANVASKIT_URL=/polygon_background/canvaskit/
 
       - name: Publishing gh-pages
         uses: peaceiris/actions-gh-pages@v3
