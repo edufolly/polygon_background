@@ -21762,7 +21762,7 @@ pk(a){return A.aaf(new A.q7("Paste is not implemented for this browser."),null,t
 A.cS.prototype={
 gqW(a){var s=this.a
 s=s==null?null:J.am8(s)
-return s==null?"/canvaskit/":s},
+return s==null?"/polygon_background/canvaskit/":s},
 gqX(a){var s=this.a
 s=s==null?null:J.am9(s)
 return s==null?!1:s},
