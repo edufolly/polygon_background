@@ -1,3 +1,4 @@
+import 'package:cyclop/cyclop.dart';
 import 'package:flutter/material.dart';
 import 'package:polygon_background/polygon_background.dart';
 import 'package:polygon_background/popup_menu_color.dart';
@@ -72,6 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ///
   @override
   Widget build(BuildContext context) {
+    Color _baseColor = _selectedColor ?? Theme.of(context).colorScheme.primary;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Polygon Background'),
@@ -88,8 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   )
                   .toList(),
-              // const PopupMenuDivider(),
-              // PopupMenuColor(label: 'Custom'),
+              const PopupMenuDivider(),
+              PopupMenuColor(label: 'Custom'),
             ],
             onSelected: colorSelection,
           ),
@@ -97,16 +99,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: CustomPaint(
         painter: PolygonBackground(
-          baseColor: _selectedColor ?? Theme.of(context).colorScheme.primary,
+          baseColor: _baseColor,
         ),
-        child: const Center(
+        child: Center(
           child: SingleChildScrollView(
             child: Card(
               color: Colors.black54,
               child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'Polygon Background',
+                padding: const EdgeInsets.all(32),
+                child: SelectableText(
+                  '0x${_baseColor.hexARGB}',
                   textScaleFactor: 3,
                 ),
               ),
@@ -120,8 +122,29 @@ class _MyHomePageState extends State<MyHomePage> {
   ///
   ///
   ///
-  Future<void> colorSelection(Color? color) async {
-    if (color != null) {
+  Future<void> colorSelection(Color color) async {
+    if (color == Colors.transparent) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: ColorPicker(
+              darkMode: Theme.of(context).brightness == Brightness.dark,
+              selectedColor: _selectedColor ?? Colors.green,
+              onColorSelected: (Color color) => setState(
+                () => _selectedColor = color,
+              ),
+              config: const ColorPickerConfig(
+                enableLibrary: false,
+                enableEyePicker: false,
+                enableOpacity: false,
+              ),
+              onClose: Navigator.of(context).pop,
+            ),
+          );
+        },
+      );
+    } else {
       setState(() => _selectedColor = color);
     }
   }

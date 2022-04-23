@@ -14,7 +14,7 @@ class PopupMenuColor extends PopupMenuItem<Color> {
     Key? key,
   }) : super(
           key: key,
-          value: color,
+          value: color ?? Colors.transparent,
           enabled: enabled,
           child: Row(
             children: <Widget>[

@@ -6,6 +6,14 @@ import 'package:flutter/material.dart';
 ///
 ///
 ///
+enum VariationMode {
+  limit, // Limit in range 0 ~ 255.
+  mod, // Modulus of division by 255.
+}
+
+///
+///
+///
 class PolygonBackground extends CustomPainter {
   static final Random rnd = Random();
 
@@ -47,11 +55,11 @@ class PolygonBackground extends CustomPainter {
     this.showPoints = false,
     this.radius = 4,
     this.redDivider = 5,
-    this.redAdd = 0.9,
+    this.redAdd = 0.6,
     this.greenDivider = 6,
-    this.greenAdd = 0.9,
+    this.greenAdd = 0.6,
     this.blueDivider = 5,
-    this.blueAdd = 0.9,
+    this.blueAdd = 0.6,
     this.debug = false,
   })  : assert(
             widthMargin < (minWidth < minHeight ? minWidth : minHeight) / 2,
@@ -306,12 +314,24 @@ class PolygonBackground extends CustomPainter {
   Color get color => baseColor
       .withAlpha(minAlpha + rnd.nextInt(maxAlpha + 1 - minAlpha))
       .withRed(
-          (baseColor.red * (rnd.nextDouble() / redDivider + redAdd)).toInt())
-      .withGreen(
-          (baseColor.green * (rnd.nextDouble() / greenDivider + greenAdd))
-              .toInt())
-      .withBlue((baseColor.blue * (rnd.nextDouble() / blueDivider + blueAdd))
-          .toInt());
+          variation(baseColor.red, redDivider, redAdd, VariationMode.limit))
+      .withGreen(variation(
+          baseColor.green, greenDivider, greenAdd, VariationMode.limit))
+      .withBlue(
+          variation(baseColor.blue, blueDivider, blueAdd, VariationMode.limit));
+
+  ///
+  ///
+  ///
+  int variation(int base, double divider, double add, VariationMode mode) {
+    int variation = (base * (rnd.nextDouble() / divider + add)).toInt();
+    switch (mode) {
+      case VariationMode.limit:
+        return max(0, min(variation, 255));
+      case VariationMode.mod:
+        return variation % 255;
+    }
+  }
 
   ///
   ///
