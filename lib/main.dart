@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:polygon_background/polygon_background_painter.dart';
+import 'package:polygon_background/polygon_background.dart';
+import 'package:polygon_background/popup_menu_color.dart';
 
 ///
 ///
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Polygon Background',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
         colorSchemeSeed: Colors.green,
@@ -53,6 +55,18 @@ class MyHomePage extends StatefulWidget {
 ///
 ///
 class _MyHomePageState extends State<MyHomePage> {
+  final Map<String, Color> _menuColors = <String, Color>{
+    'Green': Colors.green,
+    'Purple': Colors.purple,
+    'Black': Colors.black,
+    'Amber': Colors.amber,
+    'Blue': Colors.blue,
+    'Red': Colors.red,
+    'White': Colors.white,
+  };
+
+  Color? _selectedColor;
+
   ///
   ///
   ///
@@ -61,9 +75,30 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Polygon Background'),
+        actions: <Widget>[
+          PopupMenuButton<Color>(
+            icon: const Icon(Icons.color_lens),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<Color>>[
+              ..._menuColors.keys
+                  .map(
+                    (String key) => PopupMenuColor(
+                      color: _menuColors[key],
+                      enabled: _selectedColor != _menuColors[key],
+                      label: key,
+                    ),
+                  )
+                  .toList(),
+              // const PopupMenuDivider(),
+              // PopupMenuColor(label: 'Custom'),
+            ],
+            onSelected: colorSelection,
+          ),
+        ],
       ),
       body: CustomPaint(
-        painter: PolygonBackgroundPainter(context),
+        painter: PolygonBackground(
+          baseColor: _selectedColor ?? Theme.of(context).colorScheme.primary,
+        ),
         child: const Center(
           child: SingleChildScrollView(
             child: Card(
@@ -80,5 +115,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  ///
+  ///
+  ///
+  Future<void> colorSelection(Color? color) async {
+    if (color != null) {
+      setState(() => _selectedColor = color);
+    }
   }
 }
