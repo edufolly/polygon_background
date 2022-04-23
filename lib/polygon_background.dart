@@ -6,9 +6,19 @@ import 'package:flutter/material.dart';
 ///
 ///
 ///
-enum VariationMode {
+enum DrawMode {
+  triangle,
+  trapezium,
+  diamond,
+}
+
+///
+///
+///
+enum ColorVariationMode {
   limit, // Limit in range 0 ~ 255.
   mod, // Modulus of division by 255.
+  turn,
 }
 
 ///
@@ -25,7 +35,6 @@ class PolygonBackground extends CustomPainter {
   final double widthMargin;
   final int minAlpha;
   final int maxAlpha;
-  final bool showPoints;
   final double radius;
   final double redDivider;
   final double redAdd;
@@ -33,6 +42,8 @@ class PolygonBackground extends CustomPainter {
   final double greenAdd;
   final double blueDivider;
   final double blueAdd;
+  final ColorVariationMode colorVariationMode;
+  final DrawMode drawMode;
   final bool debug;
 
   final List<List<Offset>> matrix = <List<Offset>>[];
@@ -51,8 +62,7 @@ class PolygonBackground extends CustomPainter {
     this.maxHeight = 150,
     this.widthMargin = 20,
     this.minAlpha = 30,
-    this.maxAlpha = 250,
-    this.showPoints = false,
+    this.maxAlpha = 255,
     this.radius = 4,
     this.redDivider = 5,
     this.redAdd = 0.6,
@@ -60,6 +70,8 @@ class PolygonBackground extends CustomPainter {
     this.greenAdd = 0.6,
     this.blueDivider = 5,
     this.blueAdd = 0.6,
+    this.colorVariationMode = ColorVariationMode.limit,
+    this.drawMode = DrawMode.diamond,
     this.debug = false,
   })  : assert(
             widthMargin < (minWidth < minHeight ? minWidth : minHeight) / 2,
@@ -113,7 +125,6 @@ class PolygonBackground extends CustomPainter {
       if (kDebugMode) {
         print('x: ${size.width}');
         print('Points Length: ${points.length}');
-        print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
       }
     }
 
@@ -197,7 +208,6 @@ class PolygonBackground extends CustomPainter {
       if (debug) {
         if (kDebugMode) {
           print('Points Length: ${points.length}');
-          print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
         }
       }
 
@@ -212,7 +222,17 @@ class PolygonBackground extends CustomPainter {
       }
     }
 
-    _drawModel1();
+    switch (drawMode) {
+      case DrawMode.triangle:
+        _drawTriangles();
+        break;
+      case DrawMode.trapezium:
+        _drawTrapeziums();
+        break;
+      case DrawMode.diamond:
+        _drawDiamonds();
+        break;
+    }
 
     _lastSize = size;
   }
@@ -220,7 +240,7 @@ class PolygonBackground extends CustomPainter {
   ///
   ///
   ///
-  void _drawModel1() {
+  void _drawTriangles() {
     for (int i = 0; i < matrix.length - 1; i++) {
       if (i.isEven) {
         for (int j = 0; j < matrix[i].length - 1; j++) {
@@ -285,6 +305,118 @@ class PolygonBackground extends CustomPainter {
   ///
   ///
   ///
+  void _drawTrapeziums() {
+    for (int i = 0; i < matrix.length - 2; i += 2) {
+      for (int j = 0; j < matrix[i].length - 1; j++) {
+        polygons.add(
+          MyPolygon(
+            points: <Offset>[
+              matrix[i][j],
+              matrix[i][j + 1],
+              matrix[i + 2][j + 1],
+              matrix[i + 2][j],
+            ],
+            color: color,
+          ),
+        );
+      }
+    }
+  }
+
+  ///
+  ///
+  ///
+  void _drawDiamonds() {
+    for (int i = 0; i < matrix.length - 1; i++) {
+      if (i.isEven) {
+        if (i == 0) {
+          for (int j = 0; j < matrix[i].length - 1; j++) {
+            polygons.add(
+              MyPolygon(
+                points: <Offset>[
+                  matrix[i][j],
+                  matrix[i][j + 1],
+                  matrix[i + 1][j],
+                ],
+                color: color,
+              ),
+            );
+          }
+        }
+
+        for (int j = 0; j < matrix[i].length - 1; j++) {
+          if (j == 0) {
+            polygons.add(
+              MyPolygon(
+                points: <Offset>[
+                  matrix[i][j],
+                  matrix[i + 1][j],
+                  matrix[i + 2][j],
+                ],
+                color: color,
+              ),
+            );
+          } else {
+            polygons.add(
+              MyPolygon(
+                points: <Offset>[
+                  matrix[i][j],
+                  matrix[i + 1][j - 1],
+                  matrix[i + 2][j],
+                  matrix[i + 1][j],
+                ],
+                color: color,
+              ),
+            );
+          }
+        }
+
+        int j = matrix[i].length - 1;
+
+        polygons.add(
+          MyPolygon(
+            points: <Offset>[
+              matrix[i][j],
+              matrix[i + 1][j - 1],
+              matrix[i + 2][j],
+            ],
+            color: color,
+          ),
+        );
+      } else {
+        for (int j = 0; j < matrix[i].length; j++) {
+          if (i < matrix.length - 2) {
+            polygons.add(
+              MyPolygon(
+                points: <Offset>[
+                  matrix[i][j],
+                  matrix[i + 1][j],
+                  matrix[i + 2][j],
+                  matrix[i + 1][j + 1],
+                ],
+                color: color,
+              ),
+            );
+          } else {
+            polygons.add(
+              MyPolygon(
+                points: <Offset>[
+                  matrix[i][j],
+                  matrix[i + 1][j],
+                  matrix[i + 1][j + 1],
+                ],
+                color: color,
+              ),
+            );
+          }
+        }
+      }
+    }
+  }
+
+  ///
+  ///
+  ///
   @override
   void paint(Canvas canvas, Size size) {
     if (_lastSize.width < size.width || _lastSize.height < size.height) {
@@ -295,7 +427,7 @@ class PolygonBackground extends CustomPainter {
       polygon.draw(canvas);
     }
 
-    if (showPoints) {
+    if (debug) {
       Paint paint = Paint()
         ..color = const Color(0xFFFF0000)
         ..style = PaintingStyle.fill;
@@ -313,23 +445,24 @@ class PolygonBackground extends CustomPainter {
   ///
   Color get color => baseColor
       .withAlpha(minAlpha + rnd.nextInt(maxAlpha + 1 - minAlpha))
-      .withRed(
-          variation(baseColor.red, redDivider, redAdd, VariationMode.limit))
+      .withRed(variation(baseColor.red, redDivider, redAdd, colorVariationMode))
       .withGreen(variation(
-          baseColor.green, greenDivider, greenAdd, VariationMode.limit))
+          baseColor.green, greenDivider, greenAdd, colorVariationMode))
       .withBlue(
-          variation(baseColor.blue, blueDivider, blueAdd, VariationMode.limit));
+          variation(baseColor.blue, blueDivider, blueAdd, colorVariationMode));
 
   ///
   ///
   ///
-  int variation(int base, double divider, double add, VariationMode mode) {
+  int variation(int base, double divider, double add, ColorVariationMode mode) {
     int variation = (base * (rnd.nextDouble() / divider + add)).toInt();
     switch (mode) {
-      case VariationMode.limit:
+      case ColorVariationMode.limit:
         return max(0, min(variation, 255));
-      case VariationMode.mod:
+      case ColorVariationMode.mod:
         return variation % 255;
+      case ColorVariationMode.turn:
+        return turn(variation);
     }
   }
 
@@ -339,10 +472,22 @@ class PolygonBackground extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     if (oldDelegate is PolygonBackground) {
-      return baseColor != oldDelegate.baseColor;
+      return baseColor != oldDelegate.baseColor ||
+          drawMode != oldDelegate.drawMode;
     }
     return false;
   }
+
+  ///
+  ///
+  ///
+  static int turn(int n) => (n < 0)
+      ? turn(n * -1)
+      : (n > 255)
+          ? ((n ~/ 255).isOdd)
+              ? 255 - n % 255
+              : n % 255
+          : n;
 }
 
 ///

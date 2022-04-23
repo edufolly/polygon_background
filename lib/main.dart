@@ -1,5 +1,6 @@
 import 'package:cyclop/cyclop.dart';
 import 'package:flutter/material.dart';
+import 'package:polygon_background/draw_mode_parser.dart';
 import 'package:polygon_background/polygon_background.dart';
 import 'package:polygon_background/popup_menu_color.dart';
 
@@ -68,6 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Color? _selectedColor;
 
+  DrawMode _drawMode = DrawMode.diamond;
+
   ///
   ///
   ///
@@ -78,7 +81,37 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Polygon Background'),
         actions: <Widget>[
+          /// Draw Mode
+          PopupMenuButton<DrawMode>(
+            tooltip: 'Draw Mode',
+            icon: const Icon(Icons.draw),
+            itemBuilder: (BuildContext context) => DrawMode.values
+                .map(
+                  (DrawMode mode) => PopupMenuItem<DrawMode>(
+                    value: mode,
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.check,
+                          color: mode == _drawMode
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Colors.transparent,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(DrawModeParser.getName(mode)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+            onSelected: (DrawMode mode) => setState(() => _drawMode = mode),
+          ),
+
+          /// Color
           PopupMenuButton<Color>(
+            tooltip: 'Color',
             icon: const Icon(Icons.color_lens),
             itemBuilder: (BuildContext context) => <PopupMenuEntry<Color>>[
               ..._menuColors.keys
@@ -100,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: CustomPaint(
         painter: PolygonBackground(
           baseColor: _baseColor,
+          drawMode: _drawMode,
         ),
         child: Center(
           child: SingleChildScrollView(
@@ -126,8 +160,12 @@ class _MyHomePageState extends State<MyHomePage> {
     if (color == Colors.transparent) {
       await showDialog(
         context: context,
+        barrierColor: Colors.transparent,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return Dialog(
+            alignment: Alignment.bottomRight,
+            elevation: 0,
             child: ColorPicker(
               darkMode: Theme.of(context).brightness == Brightness.dark,
               selectedColor: _selectedColor ?? Colors.green,
