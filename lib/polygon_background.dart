@@ -29,11 +29,11 @@ class PolygonBackground extends CustomPainter {
   static final Random rnd = Random();
 
   final Color baseColor;
-  final int minWidth;
-  final int maxWidth;
-  final int minHeight;
-  final int maxHeight;
-  final double widthMargin;
+  final int minVarX;
+  final int maxVarX;
+  final int minVarY;
+  final int maxVarY;
+  final double margin;
   final int minAlpha;
   final int maxAlpha;
   final double radius;
@@ -57,11 +57,11 @@ class PolygonBackground extends CustomPainter {
   ///
   PolygonBackground({
     required this.baseColor,
-    this.minWidth = 80,
-    this.maxWidth = 150,
-    this.minHeight = 80,
-    this.maxHeight = 150,
-    this.widthMargin = 20,
+    this.minVarX = 80,
+    this.maxVarX = 150,
+    this.minVarY = 80,
+    this.maxVarY = 150,
+    this.margin = 20,
     this.minAlpha = 30,
     this.maxAlpha = 255,
     this.radius = 4,
@@ -71,13 +71,18 @@ class PolygonBackground extends CustomPainter {
     this.greenAdd = 0.6,
     this.blueDivider = 5,
     this.blueAdd = 0.6,
-    this.colorVariationMode = ColorVariationMode.limit,
+    this.colorVariationMode = ColorVariationMode.turn,
     this.drawMode = DrawMode.diamond,
     this.debug = false,
-  })  : assert(
-            widthMargin < (minWidth < minHeight ? minWidth : minHeight) / 2,
-            'widthMargin must be less than '
-            '${(minWidth < minHeight ? minWidth : minHeight) / 2}.'),
+  })  : assert(minVarX >= 0, 'minVarX must be greater than zero.'),
+        assert(maxVarX >= 0, 'maxVarX must be greater than zero.'),
+        assert(minVarY >= 0, 'minVarY must be greater than zero.'),
+        assert(maxVarY >= 0, 'maxVarY must be greater than zero.'),
+        assert(margin >= 0, 'margin must be greater than zero.'),
+        assert(
+            margin < (minVarX < minVarY ? minVarX : minVarY) / 2,
+            'margin must be less than '
+            '${(minVarX < minVarY ? minVarX : minVarY) / 2}.'),
         assert(minAlpha >= 0 && minAlpha <= 255,
             'minAlpha must be between 0 and 255.'),
         assert(maxAlpha >= 0 && maxAlpha <= 255,
@@ -106,8 +111,8 @@ class PolygonBackground extends CustomPainter {
     do {
       xs.add(x);
 
-      x += minWidth + rnd.nextInt(maxWidth - minWidth);
-    } while (x < size.width - minWidth);
+      x += minVarX + rnd.nextInt(maxVarX - minVarX);
+    } while (x < size.width - minVarX);
 
     xs.add(size.width);
 
@@ -127,19 +132,19 @@ class PolygonBackground extends CustomPainter {
     matrix.add(points);
 
     /// Define YS
-    int y = minHeight + rnd.nextInt(maxHeight - minHeight);
+    int y = minVarY + rnd.nextInt(maxVarY - minVarY);
 
     List<double> ys = <double>[];
 
-    while (y < size.height - minHeight) {
+    while (y < size.height - minVarY) {
       ys.add(y.toDouble());
-      y += minHeight + rnd.nextInt(maxHeight - minHeight);
+      y += minVarY + rnd.nextInt(maxVarY - minVarY);
     }
 
     ys.add(size.height);
 
     if (ys.length.isOdd) {
-      ys.add(size.height + minHeight + rnd.nextInt(maxHeight - minHeight));
+      ys.add(size.height + minVarY + rnd.nextInt(maxVarY - minVarY));
     }
 
     if (debug) {
@@ -167,18 +172,18 @@ class PolygonBackground extends CustomPainter {
 
       /// YS points
       for (int j = 0; j < lastLine.length - 1; j++) {
-        int prevX = (lastLine[j].dx + widthMargin).toInt();
+        int prevX = (lastLine[j].dx + margin).toInt();
 
-        int nextX = (lastLine[j + 1].dx - widthMargin).toInt();
+        int nextX = (lastLine[j + 1].dx - margin).toInt();
 
         int dx = prevX + rnd.nextInt(nextX - prevX);
 
         x = dx.toDouble();
 
         if (i < ys.length - 1) {
-          int prevY = (ys[i] + widthMargin).toInt();
+          int prevY = (ys[i] + margin).toInt();
 
-          int nextY = (ys[i + 1] - widthMargin).toInt();
+          int nextY = (ys[i + 1] - margin).toInt();
 
           int dy = prevY + rnd.nextInt(nextY - prevY);
 
