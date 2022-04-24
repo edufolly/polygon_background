@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Color? _selectedColor;
 
-  DrawMode _drawMode = DrawMode.halfTrapezium;
+  DrawMode _drawMode = DrawMode.diamond;
 
   ///
   ///
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
           /// Draw Mode
           PopupMenuButton<DrawMode>(
             tooltip: 'Draw Mode',
-            icon: const Icon(Icons.draw),
+            icon: const Icon(Icons.edit),
             itemBuilder: (BuildContext context) => DrawMode.values
                 .map(
                   (DrawMode mode) => PopupMenuItem<DrawMode>(

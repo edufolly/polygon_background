@@ -73,7 +73,7 @@ class PolygonBackground extends CustomPainter {
     this.blueAdd = 0.6,
     this.colorVariationMode = ColorVariationMode.limit,
     this.drawMode = DrawMode.diamond,
-    this.debug = true,
+    this.debug = false,
   })  : assert(
             widthMargin < (minWidth < minHeight ? minWidth : minHeight) / 2,
             'widthMargin must be less than '
@@ -98,39 +98,35 @@ class PolygonBackground extends CustomPainter {
     matrix.clear();
     polygons.clear();
 
+    /// Define XS
+    List<double> xs = <double>[];
+
     double x = 0;
 
-    if (debug) {
-      if (kDebugMode) {
-        print('First Line');
-      }
-    }
-
-    List<Offset> points = <Offset>[];
-
     do {
-      points.add(Offset(x, 0));
-
-      if (debug) {
-        if (kDebugMode) {
-          print('x: $x');
-        }
-      }
+      xs.add(x);
 
       x += minWidth + rnd.nextInt(maxWidth - minWidth);
     } while (x < size.width - minWidth);
 
-    points.add(Offset(size.width, 0));
+    xs.add(size.width);
 
     if (debug) {
       if (kDebugMode) {
-        print('x: ${size.width}');
-        print('Points Length: ${points.length}');
+        print('xs: $xs - ${xs.length}');
       }
+    }
+
+    /// First Line
+    List<Offset> points = <Offset>[];
+
+    for (double x in xs) {
+      points.add(Offset(x, 0));
     }
 
     matrix.add(points);
 
+    /// Define YS
     int y = minHeight + rnd.nextInt(maxHeight - minHeight);
 
     List<double> ys = <double>[];
@@ -146,81 +142,71 @@ class PolygonBackground extends CustomPainter {
       ys.add(size.height + minHeight + rnd.nextInt(maxHeight - minHeight));
     }
 
+    if (debug) {
+      if (kDebugMode) {
+        print('ys: $ys - ${ys.length}');
+      }
+    }
+
+    /// More lines
     for (int i = 0; i < ys.length; i++) {
       double y = ys[i];
 
       points = <Offset>[];
       List<Offset> lastLine = matrix.last;
 
+      /// First point
       if (matrix.length.isEven) {
         points.add(Offset(0, y));
+        if (debug) {
+          if (kDebugMode) {
+            print('(i:$i, j:-1) => (x:0, y:$y)');
+          }
+        }
       }
 
+      /// YS points
       for (int j = 0; j < lastLine.length - 1; j++) {
         int prevX = (lastLine[j].dx + widthMargin).toInt();
 
         int nextX = (lastLine[j + 1].dx - widthMargin).toInt();
 
-        if (debug) {
-          if (kDebugMode) {
-            print('AproxX [$prevX - $nextX]');
-          }
-        }
-
         int dx = prevX + rnd.nextInt(nextX - prevX);
 
         x = dx.toDouble();
 
-        if (debug) {
-          if (kDebugMode) {
-            print('x: $x');
-          }
-        }
-
-        if (i > 0 && i < ys.length - 1) {
+        if (i < ys.length - 1) {
           int prevY = (ys[i] + widthMargin).toInt();
 
           int nextY = (ys[i + 1] - widthMargin).toInt();
-
-          if (debug) {
-            if (kDebugMode) {
-              print('AproxY [$prevY - $nextY]');
-            }
-          }
 
           int dy = prevY + rnd.nextInt(nextY - prevY);
 
           y = dy.toDouble();
         }
 
+        points.add(Offset(x, y));
+
         if (debug) {
           if (kDebugMode) {
-            print('y: $y');
+            print('(i:$i, j:$j) => (x:$x, y:$y)');
           }
         }
-
-        points.add(Offset(x, y));
       }
 
+      /// Last Point
       if (matrix.length.isEven) {
         points.add(Offset(size.width, y));
-      }
-
-      if (debug) {
-        if (kDebugMode) {
-          print('Points Length: ${points.length}');
+        if (debug) {
+          if (kDebugMode) {
+            print('(i:$i, j:${lastLine.length}) => (x:${size.width}, y:$y)');
+          }
         }
       }
 
       matrix.add(points);
 
       x = 0;
-    }
-
-    if (debug) {
-      if (kDebugMode) {
-        print('ys: $ys - ${ys.length}');
-      }
     }
 
     switch (drawMode) {
