@@ -62,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
     'Purple': Colors.purple,
     'Black': Colors.black,
     'Amber': Colors.amber,
+    'Pink': Colors.pink,
     'Blue': Colors.blue,
     'Red': Colors.red,
     'White': Colors.white,
@@ -81,6 +82,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Polygon Background'),
         actions: <Widget>[
+          /// Refresh
+          IconButton(
+            onPressed: () => setState(() {}),
+            icon: const Icon(Icons.refresh),
+          ),
+
           /// Draw Mode
           PopupMenuButton<DrawMode>(
             tooltip: 'Draw Mode',
