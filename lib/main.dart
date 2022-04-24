@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Color? _selectedColor;
 
-  DrawMode _drawMode = DrawMode.diamond;
+  DrawMode _drawMode = DrawMode.halfTrapezium;
 
   ///
   ///

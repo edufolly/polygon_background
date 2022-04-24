@@ -13,6 +13,8 @@ class DrawModeParser {
         return 'Triangles';
       case DrawMode.trapezium:
         return 'Trapezium';
+      case DrawMode.halfTrapezium:
+        return 'Half Trapezium';
       case DrawMode.diamond:
         return 'Diamond';
     }

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 enum DrawMode {
   triangle,
   trapezium,
+  halfTrapezium,
   diamond,
 }
 
@@ -72,7 +73,7 @@ class PolygonBackground extends CustomPainter {
     this.blueAdd = 0.6,
     this.colorVariationMode = ColorVariationMode.limit,
     this.drawMode = DrawMode.diamond,
-    this.debug = false,
+    this.debug = true,
   })  : assert(
             widthMargin < (minWidth < minHeight ? minWidth : minHeight) / 2,
             'widthMargin must be less than '
@@ -229,6 +230,9 @@ class PolygonBackground extends CustomPainter {
       case DrawMode.trapezium:
         _drawTrapeziums();
         break;
+      case DrawMode.halfTrapezium:
+        _drawHalfTrapeziums();
+        break;
       case DrawMode.diamond:
         _drawDiamonds();
         break;
@@ -241,63 +245,51 @@ class PolygonBackground extends CustomPainter {
   ///
   ///
   void _drawTriangles() {
-    for (int i = 0; i < matrix.length - 1; i++) {
-      if (i.isEven) {
-        for (int j = 0; j < matrix[i].length - 1; j++) {
-          polygons.add(
+    for (int i = 0; i < matrix.length - 1; i += 2) {
+      for (int j = 0; j < matrix[i].length - 1; j++) {
+        polygons.addAll(
+          <MyPolygon>[
+            /// Left
             MyPolygon(
               points: <Offset>[
                 matrix[i][j],
+                matrix[i + 1][j],
+                matrix[i + 2][j],
+              ],
+              color: color,
+            ),
+
+            /// Top
+            MyPolygon(
+              points: <Offset>[
+                matrix[i][j],
+                matrix[i + 1][j],
+                matrix[i][j + 1],
+              ],
+              color: color,
+            ),
+
+            /// Right
+            MyPolygon(
+              points: <Offset>[
                 matrix[i][j + 1],
                 matrix[i + 1][j],
+                matrix[i + 2][j + 1],
               ],
               color: color,
             ),
-          );
-        }
 
-        if (i + 2 < matrix.length) {
-          for (int j = 0; j < matrix[i].length - 1; j++) {
-            polygons.add(
-              MyPolygon(
-                points: <Offset>[
-                  matrix[i][j],
-                  matrix[i + 1][j],
-                  matrix[i + 2][j],
-                ],
-                color: color,
-              ),
-            );
-          }
-        }
-      } else {
-        for (int j = 0; j < matrix[i].length; j++) {
-          polygons.add(
+            /// Bottom
             MyPolygon(
               points: <Offset>[
-                matrix[i][j],
-                matrix[i + 1][j + 1],
                 matrix[i + 1][j],
+                matrix[i + 2][j],
+                matrix[i + 2][j + 1],
               ],
               color: color,
             ),
-          );
-        }
-
-        if (i + 1 < matrix.length) {
-          for (int j = 0; j < matrix[i].length; j++) {
-            polygons.add(
-              MyPolygon(
-                points: <Offset>[
-                  matrix[i][j],
-                  matrix[i - 1][j + 1],
-                  matrix[i + 1][j + 1],
-                ],
-                color: color,
-              ),
-            );
-          }
-        }
+          ],
+        );
       }
     }
   }
@@ -306,7 +298,7 @@ class PolygonBackground extends CustomPainter {
   ///
   ///
   void _drawTrapeziums() {
-    for (int i = 0; i < matrix.length - 2; i += 2) {
+    for (int i = 0; i < matrix.length - 1; i += 2) {
       for (int j = 0; j < matrix[i].length - 1; j++) {
         polygons.add(
           MyPolygon(
@@ -318,6 +310,39 @@ class PolygonBackground extends CustomPainter {
             ],
             color: color,
           ),
+        );
+      }
+    }
+  }
+
+  ///
+  ///
+  ///
+  void _drawHalfTrapeziums() {
+    for (int i = 0; i < matrix.length - 1; i += 2) {
+      for (int j = 0; j < matrix[i].length - 1; j++) {
+        polygons.addAll(
+          <MyPolygon>[
+            /// Left - Top
+            MyPolygon(
+              points: <Offset>[
+                matrix[i][j],
+                matrix[i][j + 1],
+                matrix[i + 2][j],
+              ],
+              color: color,
+            ),
+
+            /// Right - Bottom
+            MyPolygon(
+              points: <Offset>[
+                matrix[i][j + 1],
+                matrix[i + 2][j],
+                matrix[i + 2][j + 1],
+              ],
+              color: color,
+            ),
+          ],
         );
       }
     }
